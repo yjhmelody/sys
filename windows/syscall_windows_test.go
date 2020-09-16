@@ -37,13 +37,13 @@ func TestGetExplicitEntriesFromAcl(t *testing.T) {
 	}
 
 	for _, access := range accesses {
-		_ = trusteeValueFrom(access.Trustee)
+		_ = trusteeValueFrom(&access.Trustee)
 	}
 }
 
 func trusteeValueFrom(trustee *windows.TRUSTEE) interface{} {
 	var ret interface{}
-	switch trustee.TRUSTEE_FORM {
+	switch trustee.TrusteeForm {
 	case windows.TRUSTEE_IS_SID:
 		ret = windows.TrusteeValueToSID(trustee.TrusteeValue).String()
 
