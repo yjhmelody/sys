@@ -18,6 +18,50 @@ import (
 	"golang.org/x/sys/windows"
 )
 
+func TestGetNamedSecurityInfo() {
+	fileObject := os.ExpandEnv("${SystemRoot}")
+
+	sd, err := GetNamedSecurityInfo(
+		fileObject,
+		SE_FILE_OBJECT,
+		DACL_SECURITY_INFORMATION,
+	)
+
+	dacl, _, err := sd.DACL()
+	if err != nil {
+		t.Fatal(err)
+	}
+	accesses, err := GetExplicitEntriesFromAcl(dacl)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, access := range accesses {
+		_ = trusteeValueFrom(access.Trustee)
+	}
+}
+
+func trusteeValueFrom(trustee *TRUSTEE) interface{} {
+	var ret interface{}
+	switch trustee.TRUSTEE_FORM {
+	case TRUSTEE_IS_SID:
+		ret = TrusteeValueToSID(trustee.TrusteeValue).String()
+
+	case TRUSTEE_IS_NAME:
+		ret = TrusteeValueToString(trustee.TrusteeValue)
+
+	case TRUSTEE_BAD_FORM:
+
+	case TRUSTEE_IS_OBJECTS_AND_SID:
+		ret = ObjectsAndSidFrom(TrusteeValueToObjectsAndSid(trustee.TrusteeValue))
+
+	case TRUSTEE_IS_OBJECTS_AND_NAME:
+		ret = ObjectsAndNameFrom(TrusteeValueToObjectsAndName(trustee.TrusteeValue))
+	}
+
+	return ret
+}
+
 func TestWin32finddata(t *testing.T) {
 	dir, err := ioutil.TempDir("", "go-build")
 	if err != nil {
