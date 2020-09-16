@@ -1377,23 +1377,22 @@ func GetNamedSecurityInfo(objectName string, objectType SE_OBJECT_TYPE, security
 
 // GetExplicitEntriesFromAcl queries the explicit entries from a given ACL
 func GetExplicitEntriesFromAcl(acl *ACL) ([]EXPLICIT_ACCESS, error) {
-	var entries **EXPLICIT_ACCESS
+	var entries *EXPLICIT_ACCESS
 	var size uint32
 	err := getExplicitEntriesFromAclW(
 		acl,
 		&size,
-		entries,
+		&entries,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	defer LocalFree(Handle(unsafe.Pointer(entries)))
-	pAccess := (*EXPLICIT_ACCESS)(unsafe.Pointer(entries))
 	var accesses []EXPLICIT_ACCESS
 	for i := 0; i < int(size); i++ {
-		accesses = append(accesses, *pAccess)
-		pAccess = (*EXPLICIT_ACCESS)(unsafe.Pointer((uintptr(unsafe.Pointer(pAccess)) + unsafe.Sizeof(*pAccess))))
+		accesses = append(accesses, *entries)
+		entries = (*EXPLICIT_ACCESS)(unsafe.Pointer((uintptr(unsafe.Pointer(entries)) + unsafe.Sizeof(*entries))))
 	}
 
 	return accesses, nil
