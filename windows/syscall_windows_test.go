@@ -21,17 +21,17 @@ import (
 func TestGetExplicitEntriesFromAcl(t *testing.T) {
 	fileObject := os.ExpandEnv("${SystemRoot}")
 
-	sd, err := GetNamedSecurityInfo(
+	sd, err := windows.GetNamedSecurityInfo(
 		fileObject,
-		SE_FILE_OBJECT,
-		DACL_SECURITY_INFORMATION,
+		windows.SE_FILE_OBJECT,
+		windows.DACL_SECURITY_INFORMATION,
 	)
 
 	dacl, _, err := sd.DACL()
 	if err != nil {
 		t.Fatal(err)
 	}
-	accesses, err := GetExplicitEntriesFromAcl(dacl)
+	accesses, err := windows.GetExplicitEntriesFromAcl(dacl)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,22 +41,22 @@ func TestGetExplicitEntriesFromAcl(t *testing.T) {
 	}
 }
 
-func trusteeValueFrom(trustee *TRUSTEE) interface{} {
+func trusteeValueFrom(trustee *windows.TRUSTEE) interface{} {
 	var ret interface{}
 	switch trustee.TRUSTEE_FORM {
-	case TRUSTEE_IS_SID:
-		ret = TrusteeValueToSID(trustee.TrusteeValue).String()
+	case windows.TRUSTEE_IS_SID:
+		ret = windows.TrusteeValueToSID(trustee.TrusteeValue).String()
 
-	case TRUSTEE_IS_NAME:
-		ret = TrusteeValueToString(trustee.TrusteeValue)
+	case windows.TRUSTEE_IS_NAME:
+		ret = windows.TrusteeValueToString(trustee.TrusteeValue)
 
-	case TRUSTEE_BAD_FORM:
+	case windows.TRUSTEE_BAD_FORM:
 
-	case TRUSTEE_IS_OBJECTS_AND_SID:
-		ret = ObjectsAndSidFrom(TrusteeValueToObjectsAndSid(trustee.TrusteeValue))
+	case windows.TRUSTEE_IS_OBJECTS_AND_SID:
+		ret = windows.TrusteeValueToObjectsAndSid(trustee.TrusteeValue)
 
-	case TRUSTEE_IS_OBJECTS_AND_NAME:
-		ret = ObjectsAndNameFrom(TrusteeValueToObjectsAndName(trustee.TrusteeValue))
+	case windows.TRUSTEE_IS_OBJECTS_AND_NAME:
+		ret = windows.TrusteeValueToObjectsAndName(trustee.TrusteeValue)
 	}
 
 	return ret
