@@ -1389,7 +1389,7 @@ func GetExplicitEntriesFromAcl(acl *ACL) ([]EXPLICIT_ACCESS, error) {
 	}
 
 	defer LocalFree(Handle(unsafe.Pointer(entries)))
-	entries = (*EXPLICIT_ACCESS)(unsafe.Pointer(entries))
+	pAccess = (*EXPLICIT_ACCESS)(unsafe.Pointer(entries))
 	var accesses []EXPLICIT_ACCESS
 	for i := 0; i < int(size); i++ {
 		accesses = append(accesses, *entries)

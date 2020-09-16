@@ -18,7 +18,7 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-func TestGetNamedSecurityInfo() {
+func TestGetExplicitEntriesFromAcl(t *testing.T) {
 	fileObject := os.ExpandEnv("${SystemRoot}")
 
 	sd, err := GetNamedSecurityInfo(
